@@ -49,3 +49,19 @@ export const AGREEMENT_TERMS = [
   '8. Bike Lover reserves the right to refuse any transaction involving fraudulent information.',
   '9. All transactions are permanently archived for legal and historical purposes.',
 ];
+
+
+export const COLORS = [
+  'Black',
+  'Red',
+  'Blue',
+  'White',
+  'Silver',
+  'Grey',
+  'Matte Black',
+  'Racing Blue',
+  'Candy Red',
+  'Green',
+  'Yellow',
+  'Orange',
+];

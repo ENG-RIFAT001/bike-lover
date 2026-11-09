@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Printer, ArrowLeft } from 'lucide-react';
 import { BUSINESS_INFO, DEVELOPER_INFO, AGREEMENT_TERMS } from '@/lib/constants';
 
-export default function PadPrintPage() {
+function PadPrintContent() {
   const searchParams = useSearchParams();
   const txnId = searchParams.get('txn') || 'TXN-20261101-102';
   const type = searchParams.get('type') || 'SALE';
@@ -21,7 +21,7 @@ export default function PadPrintPage() {
       <div className="max-w-4xl mx-auto px-4 mb-6 flex items-center justify-between no-print">
         <button
           onClick={() => window.history.back()}
-          className="inline-flex items-center space-x-1.5 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold shadow-sm"
+          className="inline-flex items-center space-x-1.5 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold shadow-sm cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Dashboard</span>
@@ -166,5 +166,13 @@ export default function PadPrintPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function PadPrintPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-sm font-bold">Loading print document...</div>}>
+      <PadPrintContent />
+    </Suspense>
   );
 }
