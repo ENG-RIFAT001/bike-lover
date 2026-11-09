@@ -39,6 +39,7 @@ const navItems: NavItem[] = [
   { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Agreements", href: "/admin/agreements", icon: FileText },
   { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+  { label: "Delivery Challan", href: "/admin/cash-memo", icon: FileText },
   { label: "Documents", href: "/admin/documents", icon: FolderOpen },
   { label: "Users", href: "/admin/users", icon: UserCog, roles: ["OWNER"] },
   { label: "Settings", href: "/admin/settings", icon: Settings },
