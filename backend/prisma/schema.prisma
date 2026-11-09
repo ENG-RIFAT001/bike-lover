@@ -1,0 +1,283 @@
+// This is your Prisma schema file
+// Bike Lover - Motorcycle Dealership Platform
+// Designed & Developed By WebCraftersPro
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+enum BikeStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  PURCHASED
+}
+
+enum BikeCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+}
+
+enum TransactionType {
+  PURCHASE
+  SALE
+  EXCHANGE
+}
+
+enum AgreementStatus {
+  PENDING
+  SENT
+  VIEWED
+  SIGNED
+  EXPIRED
+}
+
+enum DocumentType {
+  PURCHASE_INVOICE
+  SALE_INVOICE
+  PURCHASE_AGREEMENT
+  SALE_AGREEMENT
+  CUSTOMER_AGREEMENT
+  RECEIPT
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         UserRole @default(STAFF)
+  phone        String?
+  avatar       String?
+  isActive     Boolean  @default(true)
+  lastLogin    DateTime?
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  auditLogs    AuditLog[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Bike {
+  id                 String        @id @default(uuid())
+  bikeId             String        @unique
+  brand              String
+  model              String
+  variant            String?
+  year               Int
+  color              String
+  registrationNumber String?
+  chassisNumber      String
+  engineNumber       String
+  mileage            Int           @default(0)
+  purchasePrice      Decimal       @db.Decimal(12, 2)
+  salePrice          Decimal       @db.Decimal(12, 2)
+  condition          BikeCondition @default(GOOD)
+  status             BikeStatus    @default(AVAILABLE)
+  description        String?       @db.Text
+  slug               String        @unique
+  isFeatured         Boolean       @default(false)
+  isPublished        Boolean       @default(true)
+
+  images             BikeImage[]
+  documents          BikeDocument[]
+  transactions       Transaction[]
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@map("bikes")
+}
+
+model BikeImage {
+  id        String   @id @default(uuid())
+  bikeId    String
+  bike      Bike     @relation(fields: [bikeId], references: [id], onDelete: Cascade)
+  url       String
+  isPrimary Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("bike_images")
+}
+
+model BikeDocument {
+  id        String   @id @default(uuid())
+  bikeId    String
+  bike      Bike     @relation(fields: [bikeId], references: [id], onDelete: Cascade)
+  type      String
+  url       String
+  name      String
+  createdAt DateTime @default(now())
+
+  @@map("bike_documents")
+}
+
+model Customer {
+  id                   String    @id @default(uuid())
+  fullName             String
+  fatherName           String?
+  motherName           String?
+  dateOfBirth          DateTime?
+  mobile               String
+  email                String?
+  presentAddress       String?   @db.Text
+  permanentAddress     String?   @db.Text
+  nidNumber            String?   @unique
+  drivingLicenseNumber String?
+
+  nidFront             String?
+  nidBack              String?
+  drivingLicenseFront  String?
+  drivingLicenseBack   String?
+  photo                String?
+
+  isActive             Boolean   @default(true)
+  notes                String?   @db.Text
+
+  transactions         Transaction[]
+  agreements           Agreement[]
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@map("customers")
+}
+
+model Transaction {
+  id            String          @id @default(uuid())
+  transactionId String          @unique
+  type          TransactionType
+  bikeId        String
+  bike          Bike            @relation(fields: [bikeId], references: [id])
+  customerId    String
+  customer      Customer        @relation(fields: [customerId], references: [id])
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+
+  amount        Decimal         @db.Decimal(12, 2)
+  purchasePrice Decimal?        @db.Decimal(12, 2)
+  salePrice     Decimal?        @db.Decimal(12, 2)
+  profit        Decimal?        @db.Decimal(12, 2)
+
+  transactionDate DateTime
+  notes           String?       @db.Text
+  paymentMethod   String?
+  paymentStatus   String        @default("PAID")
+
+  documents       GeneratedDocument[]
+  agreement       Agreement?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("transactions")
+}
+
+model Agreement {
+  id            String          @id @default(uuid())
+  agreementId   String          @unique
+  transactionId String          @unique
+  transaction   Transaction     @relation(fields: [transactionId], references: [id])
+  customerId    String
+  customer      Customer        @relation(fields: [customerId], references: [id])
+
+  status        AgreementStatus @default(PENDING)
+  secureToken   String          @unique
+  expiresAt     DateTime
+
+  terms         String          @db.Text
+  signatureImage String?
+  signedPdfUrl  String?
+
+  ipAddress     String?
+  userAgent     String?
+  deviceInfo    String?
+  signedAt      DateTime?
+
+  emailSentAt   DateTime?
+  viewedAt      DateTime?
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("agreements")
+}
+
+model GeneratedDocument {
+  id            String       @id @default(uuid())
+  transactionId String
+  transaction   Transaction  @relation(fields: [transactionId], references: [id])
+  type          DocumentType
+  url           String
+  fileName      String
+  createdAt     DateTime     @default(now())
+
+  @@map("generated_documents")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Backup {
+  id        String   @id @default(uuid())
+  fileName  String
+  filePath  String
+  fileSize  BigInt
+  type      String
+  status    String   @default("COMPLETED")
+  createdAt DateTime @default(now())
+
+  @@map("backups")
+}
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  name      String
+  rating    Int      @default(5)
+  comment   String   @db.Text
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("testimonials")
+}
