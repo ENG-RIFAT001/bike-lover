@@ -5,6 +5,7 @@ import BikeCard from '@/components/bikes/BikeCard';
 import BikeFilters from '@/components/bikes/BikeFilters';
 import BikeSearch from '@/components/bikes/BikeSearch';
 import { Bike } from '@/types';
+import { Sparkles, SlidersHorizontal, ArrowUpDown, Bike as BikeIcon, ShieldCheck } from 'lucide-react';
 
 const INITIAL_BIKES: Bike[] = [
   {
@@ -176,46 +177,58 @@ export default function BikesPage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-[#f8fafc] min-h-screen py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        {/* Header Breadcrumbs & Title */}
-        <div className="mb-8">
-          <span className="text-xs text-[#DC2626] font-bold uppercase tracking-widest">
-            Inventory Catalogue
-          </span>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight mt-1">
-            Certified Used Motorcycles
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Displaying {filteredBikes.length} available bikes ready for physical inspection in Sonir Akhra showroom.
-          </p>
+        {/* Modern Hero Banner for Inventory */}
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#111827] via-gray-900 to-[#1e293b] p-8 sm:p-12 text-white overflow-hidden shadow-xl border border-gray-800">
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 bg-[radial-gradient(#DC2626_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+          
+          <div className="relative z-10 max-w-2xl space-y-3">
+            <div className="inline-flex items-center space-x-2 bg-red-500/10 border border-red-500/20 text-[#DC2626] px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Certified Showroom Stock</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+              Certified Used <span className="text-[#DC2626]">Motorcycles</span>
+            </h1>
+            <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+              Explore 100% physically inspected bikes with authentic BRTA registration papers, verified engine health, and digital delivery challan.
+            </p>
+          </div>
         </div>
 
-        {/* Top Search & Sort Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 items-center justify-between">
-          <div className="w-full sm:max-w-md">
+        {/* Top Floating Filter & Search Bar */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="w-full md:max-w-lg">
             <BikeSearch value={search} onChange={setSearch} />
           </div>
-          <div className="flex items-center space-x-2 shrink-0">
-            <span className="text-xs font-semibold text-gray-500">Sort By:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs border border-gray-300 rounded-lg p-2.5 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#DC2626]"
-            >
-              <option value="latest">Latest Listed</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="year">Newest Model Year</option>
-            </select>
+
+          <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
+            <div className="flex items-center space-x-2 bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700">
+              <ArrowUpDown className="w-4 h-4 text-gray-400" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-transparent focus:outline-none cursor-pointer text-gray-900 font-bold"
+              >
+                <option value="latest">Latest Listed</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="year">Newest Model Year</option>
+              </select>
+            </div>
+
+            <div className="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-2 rounded-xl shrink-0">
+              {filteredBikes.length} Bikes
+            </div>
           </div>
         </div>
 
-        {/* Main Grid with Sidebar Filter */}
+        {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* Filters Sidebar */}
+          {/* Sidebar Filter */}
           <div className="lg:col-span-1">
             <BikeFilters
               selectedBrand={selectedBrand}
@@ -232,16 +245,20 @@ export default function BikesPage() {
             />
           </div>
 
-          {/* Bikes Card Grid */}
+          {/* Cards Grid */}
           <div className="lg:col-span-3">
             {filteredBikes.length === 0 ? (
-              <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-                <p className="text-gray-500 font-medium">No motorcycles found matching your filter criteria.</p>
+              <div className="bg-white rounded-3xl p-16 text-center border border-gray-200/80 shadow-sm space-y-4">
+                <BikeIcon className="w-16 h-16 text-gray-300 mx-auto" />
+                <h3 className="text-lg font-bold text-gray-800">No motorcycles found</h3>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                  Try adjusting your search criteria or clearing active filters to see all available inventory.
+                </p>
                 <button
                   onClick={handleReset}
-                  className="mt-4 px-4 py-2 bg-[#DC2626] text-white rounded-lg text-xs font-bold"
+                  className="px-5 py-2.5 bg-[#DC2626] hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
               </div>
             ) : (
